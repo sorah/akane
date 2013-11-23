@@ -35,6 +35,14 @@ module Akane
           stream.on_direct_message do |message|
             invoke(:message, message)
           end
+
+          stream.on_inited do
+            @logger.info "Stream: inited"
+          end
+
+          stream.on_reconnect do
+            @logger.info "Stream: reconnected"
+          end
         }
       end
 

@@ -7,15 +7,18 @@ module Akane
   class Manager
     def initialize(config)
       @config = config
+      @logger = config.logger
     end
 
     def prepare
+      @logger.info 'Preparing'
       @receivers = @config["accounts"].map do |name, credential|
         Akane::Receivers::Stream.new(
           consumer: {token: @config["consumer"]["token"], secret: @config["consumer"]["secret"]},
           account: {token: credential["token"], secret: credential["secret"]},
           logger: @config.logger
         ).tap do |receiver|
+          @logger.info "Preparing... receiver - #{receiver.class}"
           receiver.on_tweet(  &(method(:on_tweet).to_proc.curry[name]))
           receiver.on_message(&(method(:on_message).to_proc.curry[name]))
           receiver.on_event(  &(method(:on_event).to_proc.curry[name]))
@@ -33,6 +36,7 @@ module Akane
           [[definition, {}]]
         end
       end.map do |kind, config|
+        @logger.info "Preparing... storgae - #{kind}"
         require "akane/storages/#{kind}"
         Akane::Storages.const_get(kind.gsub(/(?:\A|_)(.)/) { $1.upcase }).new(
           config: config,
@@ -40,19 +44,24 @@ module Akane
         )
       end
 
-      @recorder = Akane::Recorder.new(@storages)
+      @recorder = Akane::Recorder.new(@storages, logger: @config.logger)
+
+      @logger.info "Prepared with #{@storages.size} storage(s) and #{@receivers.size} receiver(s)"
     end
 
     def start
+      @logger.info "Starting receivers..."
       @receivers.each(&:start)
     end
 
     def run
+      @logger.info "Running..."
       self.prepare()
 
       if EM.reactor_running?
         start()
       else
+        @logger.info "Diving into Eventmachine"
         EM.epoll
         EM.kqueue
         EM.run do
