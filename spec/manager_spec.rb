@@ -62,7 +62,7 @@ describe Akane::Manager do
 
   describe "#start" do
     let(:receiver) { double("a").as_null_object }
-    let(:recorder) { double("recorder") }
+    let(:recorder) { double("recorder").as_null_object }
     before do
       Akane::Receivers::Stream.stub(new: receiver)
       Akane::Recorder.stub(new: recorder)
@@ -78,6 +78,11 @@ describe Akane::Manager do
 
     it "starts all receivers" do
       receiver.should_receive(:start)
+      subject.start
+    end
+
+    it "starts all receivers" do
+      recorder.should_receive(:run)
       subject.start
     end
 

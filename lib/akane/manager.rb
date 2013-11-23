@@ -52,6 +52,12 @@ module Akane
     def start
       @logger.info "Starting receivers..."
       @receivers.each(&:start)
+      @logger.info "Starting recorder..."
+      if EM.reactor_running?
+        EM.defer { @recorder.run }
+      else
+        @recorder.run
+      end
     end
 
     def run
