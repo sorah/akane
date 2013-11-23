@@ -27,7 +27,7 @@ module Akane
             invoke(:tweet, tweet)
           end
 
-          stream.on_delete do |user_id, tweet_id|
+          stream.on_delete do |tweet_id, user_id|
             invoke(:delete, user_id, tweet_id)
           end
 
