@@ -17,8 +17,8 @@ module Akane
           auth_method: :oauth,
           consumer_key: @consumer[:token],
           consumer_secret: @consumer[:secret],
-          token: @account[:token],
-          secret: @account[:secret]
+          oauth_token: @account[:token],
+          oauth_token_secret: @account[:secret]
         ).tap { |stream|
           stream.on_anything do |hash|
             invoke(:event, hash) if hash["event"]
