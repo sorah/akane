@@ -3,9 +3,11 @@ module Akane
     class AbstractReceiver
       def initialize(consumer: raise(ArgumentError, 'missing consumer'),
                      account:  raise(ArgumentError, 'missing account'),
+                     logger: Logger.new($stdout),
                      config: {})
         @consumer = consumer
         @account = account
+        @logger = logger
         @config = config
 
         @hooks = {}
