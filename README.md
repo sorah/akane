@@ -1,24 +1,22 @@
 # Akane
 
-TODO: Write a gem description
+Log your timeline
+
+## Requirements
+
+- Ruby 2.0.0 or later
 
 ## Installation
-
-Add this line to your application's Gemfile:
-
-    gem 'akane'
-
-And then execute:
-
-    $ bundle
-
-Or install it yourself as:
 
     $ gem install akane
 
 ## Usage
 
-TODO: Write usage instructions here
+TBD
+
+## Todo
+
+* REST API fallbacking
 
 ## Contributing
 
