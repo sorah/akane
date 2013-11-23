@@ -1,0 +1,6 @@
+#!/usr/bin/env ruby
+
+require 'akane'
+require 'akane/cli'
+
+exit Akane::CLI.run(ARGV)
