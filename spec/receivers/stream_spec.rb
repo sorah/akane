@@ -97,6 +97,7 @@ describe Akane::Receivers::Stream do
         called = h
       end
       TweetStream::MockClient.invoke('anything', "event" => "favorite")
+      TweetStream::MockClient.invoke('anything', "something" => "else")
       expect(called).to eq("event" => "favorite")
     end
   end

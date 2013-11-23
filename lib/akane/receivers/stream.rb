@@ -20,7 +20,7 @@ module Akane
           secret: @account[:secret]
         ).tap { |stream|
           stream.on_anything do |hash|
-            invoke(:event, hash)
+            invoke(:event, hash) if hash["event"]
           end
 
           stream.on_timeline_status do |tweet|
