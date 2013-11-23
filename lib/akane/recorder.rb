@@ -51,6 +51,7 @@ module Akane
         begin
           storage.__send__(action, account, *payload)
         rescue Exception => e
+          raise e if e === Interrupt
           raise e if raise_errors
           @logger.error "Error while recorder performing to #{storage.inspect}:  #{e.inspect}"
           @logger.error e.backtrace
@@ -63,6 +64,7 @@ module Akane
         begin
           self.dequeue(raise_errors)
         rescue Exception => e
+          raise e if e === Interrupt
           raise e if raise_errors
           @logger.error "Error while recorder dequing: #{e.inspect}"
           @logger.error e.backtrace
