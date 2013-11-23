@@ -1,7 +1,6 @@
 require 'akane/receivers/abstract_receiver'
 require 'tweetstream'
 
-
 module Akane
   module Receivers
     class Stream < AbstractReceiver
