@@ -1,6 +1,7 @@
 require 'akane/receivers/abstract_receiver'
 require 'tweetstream'
 
+
 module Akane
   module Receivers
     class Stream < AbstractReceiver
@@ -38,6 +39,7 @@ module Akane
       end
 
       def start
+        @logger.info "Stream : Starting"
         stream.userstream
         @running = true
         self

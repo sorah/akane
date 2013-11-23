@@ -1,9 +1,10 @@
 require 'spec_helper'
+require 'logger'
 require 'akane/receivers/stream'
 
 describe Akane::Receivers::Stream do
   let(:config) { {} }
-  subject { described_class.new(consumer: {token: 'consumer-token', secret: 'consumer-secret'}, account: {token: '42-access-token', secret: 'access-secret'}, config: config) }
+  subject { described_class.new(consumer: {token: 'consumer-token', secret: 'consumer-secret'}, account: {token: '42-access-token', secret: 'access-secret'}, config: config, logger: Logger.new(nil)) }
 
   after(:each) do
     TweetStream::MockClient.clients.clear
