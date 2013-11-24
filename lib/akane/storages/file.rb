@@ -11,7 +11,7 @@ module Akane
         super
         @screen_name_to_id_cache = {}
         @dir = Pathname.new(@config["dir"])
-        [@dir, @dir.join('users'), @dir.join('event'), @dir.join('timeline')].each do |d|
+        [@dir, @dir.join('names'), @dir.join('users'), @dir.join('event'), @dir.join('timeline')].each do |d|
           d.mkdir unless d.exist?
         end
       end
@@ -111,7 +111,7 @@ module Akane
         user_id_dir.mkdir unless user_id_dir.exist?
 
         return unless screen_name
-        screen_name_dir = @dir.join('users', screen_name)
+        screen_name_dir = @dir.join('names', screen_name)
 
         unless @screen_name_to_id_cache.has_key?(screen_name)
           @screen_name_to_id_cache[screen_name] = if screen_name_dir.symlink?
@@ -127,13 +127,13 @@ module Akane
         if cached_id && cached_id != user_id.to_s
           prev_id = screen_name_dir.realpath.basename
           @logger.info "Renaming #{screen_name}(#{prev_id}) dir: #{screen_name} -> #{prev_id}-#{screen_name}"
-          screen_name_dir.rename(@dir.join('users',"#{prev_id}-#{screen_name}"))
-          screen_name_dir.make_symlink(user_id_dir.basename)
+          screen_name_dir.rename(@dir.join('names',"#{prev_id}-#{screen_name}"))
+          screen_name_dir.make_symlink("../users/#{user_id_dir.basename}")
           @screen_name_to_id_cache[screen_name] = user_id.to_s
 
         elsif cached_id.nil?
           @logger.info "Linking #{screen_name}->#{user_id} dir"
-          screen_name_dir.make_symlink(user_id_dir.basename)
+          screen_name_dir.make_symlink("../users/#{user_id_dir.basename}")
           @screen_name_to_id_cache[screen_name] = user_id.to_s
         end
       end
