@@ -102,7 +102,7 @@ module Akane
       def messages_raw_io_for_user(user_id, screen_name=nil, &block)
         symlink_user_dir(user_id, screen_name)
         date = Date.today
-        ::File.open(@dir.join('users', user_id.to_s, date.strftime('messages.%Y-%m.txt')), 'a', &block)
+        ::File.open(@dir.join('users', user_id.to_s, date.strftime('messages-raw.%Y-%m.txt')), 'a', &block)
       end
 
 
