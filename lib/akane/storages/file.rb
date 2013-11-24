@@ -84,25 +84,25 @@ module Akane
       def tweets_io_for_user(user_id, screen_name=nil, &block)
         symlink_user_dir(user_id, screen_name)
         date = Date.today
-        ::File.open(@dir.join('users', user_id.to_s, date.strftime('tweets.%Y-%m-%d.txt')), 'a', &block)
+        ::File.open(@dir.join('users', user_id.to_s, date.strftime('tweets.%Y-%m.txt')), 'a', &block)
       end
 
       def tweets_deletion_io_for_user(user_id, screen_name=nil, &block)
         symlink_user_dir(user_id, screen_name)
         date = Date.today
-        ::File.open(@dir.join('users', user_id.to_s, date.strftime('tweets.%Y-%m-%d.deleted.txt')), 'a', &block)
+        ::File.open(@dir.join('users', user_id.to_s, date.strftime('deleted-tweets.%Y-%m.txt')), 'a', &block)
       end
 
       def messages_io_for_user(user_id, screen_name=nil, &block)
         symlink_user_dir(user_id, screen_name)
         date = Date.today
-        ::File.open(@dir.join('users', user_id.to_s, date.strftime('messages.%Y-%m-%d.txt')), 'a', &block)
+        ::File.open(@dir.join('users', user_id.to_s, date.strftime('messages.%Y-%m.txt')), 'a', &block)
       end
 
       def messages_raw_io_for_user(user_id, screen_name=nil, &block)
         symlink_user_dir(user_id, screen_name)
         date = Date.today
-        ::File.open(@dir.join('users', user_id.to_s, date.strftime('messages.%Y-%m-%d.raw.txt')), 'a', &block)
+        ::File.open(@dir.join('users', user_id.to_s, date.strftime('messages.%Y-%m.txt')), 'a', &block)
       end
 
 
