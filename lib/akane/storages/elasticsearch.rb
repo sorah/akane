@@ -22,8 +22,23 @@ module Akane
       end
 
       def mark_as_deleted(account, user_id, tweet_id)
-        @es.update(index: @index_name, type: 'tweet', ignore: 404,
-                   id: tweet_id.to_s, body: {doc: {deleted: true}})
+        tweet = @es.get(index: @index_name, type: 'tweet', id: tweet_id.to_s)['_source']
+        tweet['deleted'] = true
+        @es.index(index: @index_name, type: 'tweet', id: tweet_id.to_s, body: tweet)
+        minimum_tweet = {
+          id: tweet['id'],
+          id_str: tweet['id_str'],
+          text: tweet['text'],
+          user: {
+            id: tweet['user']['id'],
+            id_str: tweet['user']['id_str'],
+            screen_name: tweet['user']['screen_name'],
+          }
+        }
+        @es.index(index: @index_name, type: 'deleted_tweet', id: tweet_id.to_s, body: {tweet: minimum_tweet, deleted_at: Time.now.strftime('%Y-%m-%d %H:%M:%S %z')})
+      rescue ::Elasticsearch::Transport::Transport::Errors::NotFound => e
+        @logger.debug "Due to 404, skipping Deletion for #{tweet_id}"
+        # do nothing
       end
 
       def record_event(account, event)
@@ -175,6 +190,14 @@ module Akane
                 _source: {enabled: true},
                 properties: tweet_properties,
               },
+              deleted_tweet: {
+                _source: {enabled: true},
+                properties: {
+                  tweet: {type: 'object', properties: minimum_tweet_properties},
+                  deleted_at: {type: 'date', index: 'no'},
+                },
+              },
+
               message: {
                 _source: {enabled: true},
                 properties: {
