@@ -38,7 +38,7 @@ module Akane
 
       def record_message(account, message)
         messages_raw_io_for_user(message["sender"]["id"], message["sender"]["screen_name"]) do |io|
-          io.puts message.to_json
+          io.puts message.attrs.to_json
         end
         messages_io_for_user(message["sender"]["id"], message["sender"]["screen_name"]) do |io|
           io.puts "[#{message["created_at"].xmlschema}] #{message["sender"]["screen_name"]} -> #{message["recipient"]["screen_name"]}:" \
