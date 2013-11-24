@@ -17,8 +17,8 @@ module Akane
 
       def record_tweet(account, tweet)
         tweet_hash = tweet.attrs
-        tweet_hash['deleted'] = false
-        @es.index(index: @index_name, type: 'tweet', id: tweet_hash['id_str'], body: tweet_hash)
+        tweet_hash[:deleted] = false
+        @es.index(index: @index_name, type: 'tweet', id: tweet_hash[:id_str], body: tweet_hash)
       end
 
       def mark_as_deleted(account, user_id, tweet_id)
@@ -38,7 +38,7 @@ module Akane
       end
 
       def record_message(account, message)
-        @es.index(index: @index_name, type: 'message', id: message['id_str'], body: message.attrs)
+        @es.index(index: @index_name, type: 'message', id: message[:id_str], body: message.attrs)
       end
 
       private
