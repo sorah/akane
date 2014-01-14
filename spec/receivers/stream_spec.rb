@@ -82,7 +82,7 @@ describe Akane::Receivers::Stream do
       subject.on_delete do |u,t|
         called = [u,t]
       end
-      TweetStream::MockClient.invoke('delete', 42, 424242)
+      TweetStream::MockClient.invoke('delete', 424242, 42)
       expect(called).to eq([42,424242])
     end
   end
