@@ -9,7 +9,7 @@ Gem::Specification.new do |spec|
   spec.authors       = ["Shota Fukumori (sora_h)"]
   spec.email         = ["her@sorah.jp"]
   spec.description   = %q{Log the timeline}
-  spec.summary       = %q{Log your timeline to elasticsearch or something}
+  spec.summary       = %q{Log your timeline to something}
   spec.homepage      = "https://github.com/sorah/akane"
   spec.license       = "MIT"
 
