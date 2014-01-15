@@ -39,11 +39,12 @@ module Akane
 
     def perform(action, account, *payload, raise_errors: false)
       if action == :record_tweet
-        return if @recently_performed[payload.last["id"]]
-        @recently_performed.flag!(payload.last["id"])
+        return if @recently_performed[payload.last[:id]]
+        @recently_performed.flag!(payload.last[:id])
 
-        if payload.last["retweeted_status"]
-          perform(:record_tweet, account, payload.last["retweeted_status"], raise_errors: raise_errors)
+        # WTF: Twitter::NullObject
+        unless payload.last[:retweeted_status].nil?
+          perform(:record_tweet, account, payload.last[:retweeted_status], raise_errors: raise_errors)
         end
       end
 
