@@ -1,5 +1,6 @@
 require 'akane/manager'
 require 'akane/config'
+require 'optparse'
 
 module Akane
   class CLI
