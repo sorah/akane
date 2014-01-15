@@ -1,5 +1,4 @@
 require 'spec_helper'
-require 'eventmachine'
 require 'akane/manager'
 require 'akane/receivers/stream'
 require 'akane/storages/mock'
@@ -28,10 +27,6 @@ describe Akane::Manager do
   end
 
   subject { Akane::Manager.new(config) }
-
-  before do
-    EM.stub(:run) { |&block| block.call }
-  end
 
   # receivers -> manager -> recorder -> storage
 

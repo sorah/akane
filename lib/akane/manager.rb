@@ -1,4 +1,3 @@
-require 'eventmachine'
 require 'akane/config'
 require 'akane/recorder'
 require 'akane/receivers/stream'
@@ -53,27 +52,14 @@ module Akane
       @logger.info "Starting receivers..."
       @receivers.each(&:start)
       @logger.info "Starting recorder..."
-      if EM.reactor_running?
-        EM.defer { @recorder.run }
-      else
-        @recorder.run
-      end
+      @recorder.run
     end
 
     def run
       @logger.info "Running..."
       self.prepare()
 
-      if EM.reactor_running?
-        start()
-      else
-        @logger.info "Diving into Eventmachine"
-        EM.epoll
-        EM.kqueue
-        EM.run do
-          start()
-        end
-      end
+      start()
     end
 
     private
