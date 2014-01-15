@@ -21,6 +21,35 @@ module Akane
       manager.run
     end
 
+    def auth
+      require 'twitter'
+
+      consumer = config.consumer
+
+      request_token = consumer.get_request_token
+      puts "Allow me using this URL: #{request_token.authorize_url}"
+      print "Then type shown PIN: "
+      pin = $stdin.gets.chomp
+      print "Authorizing... "
+
+      access_token = request_token.get_access_token(oauth_verifier: pin)
+      twitter = Twitter::REST::Client.new(
+        consumer_key: config[:consumer]['token'],
+        consumer_secret: config[:consumer]['secret'],
+        access_token: access_token.token,
+        access_token_secret: access_token.secret,
+      )
+      puts "done.\n\n"
+
+      puts <<-EOY
+---
+accounts:
+  #{twitter.current_user.screen_name}:
+    token: #{access_token.token}
+    secret: #{access_token.secret}
+      EOY
+    end
+
     def help
       puts <<-EOH
 Usage:

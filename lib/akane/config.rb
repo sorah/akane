@@ -1,5 +1,6 @@
 require 'yaml'
 require 'logger'
+require 'oauth'
 
 module Akane
   class Config
@@ -16,6 +17,13 @@ module Akane
 
     def [](k)
       @hash[k.to_s]
+    end
+
+    def consumer
+      consumer = self[:consumer]
+      return nil unless consumer
+      OAuth::Consumer.new(consumer['token'], consumer['secret'],
+                          site: 'https://api.twitter.com/')
     end
 
     def logger
