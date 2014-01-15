@@ -64,7 +64,7 @@ module Akane
         begin
           self.dequeue(raise_errors)
         rescue Exception => e
-          raise e if e === Interrupt
+          raise e if Interrupt === e
           raise e if raise_errors
           @logger.error "Error while recorder dequing: #{e.inspect}"
           @logger.error e.backtrace
