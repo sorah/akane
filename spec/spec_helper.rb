@@ -13,4 +13,4 @@ RSpec.configure do |config|
   config.order = 'random'
 end
 
-require_relative './support/mock_tweetstream'
+require_relative './support/mock_twitter_streaming'

@@ -1,61 +1,53 @@
 require 'akane/receivers/abstract_receiver'
-require 'tweetstream'
+require 'twitter'
 
 module Akane
   module Receivers
     class Stream < AbstractReceiver
       def initialize(*)
         super
-        @running = false
+        @thread = nil
       end
 
-      def running?() @running end
+      def running?() !!(@thread && @thread.alive?) end
 
       def stream
-        @stream ||= TweetStream::Client.new(
-          auth_method: :oauth,
+        @stream ||= Twitter::Streaming::Client.new(
           consumer_key: @consumer[:token],
           consumer_secret: @consumer[:secret],
-          oauth_token: @account[:token],
-          oauth_token_secret: @account[:secret]
-        ).tap { |stream|
-          stream.on_anything do |hash|
-            invoke(:event, hash) if hash["event"]
-          end
-
-          stream.on_timeline_status do |tweet|
-            invoke(:tweet, tweet)
-          end
-
-          stream.on_delete do |tweet_id, user_id|
-            invoke(:delete, user_id, tweet_id)
-          end
-
-          stream.on_direct_message do |message|
-            invoke(:message, message)
-          end
-
-          stream.on_inited do
-            @logger.info "Stream: inited"
-          end
-
-          stream.on_reconnect do
-            @logger.info "Stream: reconnected"
-          end
-        }
+          access_token: @account[:token],
+          access_token_secret: @account[:secret]
+        )
       end
+
+      attr_reader :thread
 
       def start
         @logger.info "Stream : Starting"
-        stream.userstream
-        @running = true
+
+        @thread = Thread.new do
+          stream.user do |obj|
+            case obj
+            when Twitter::Tweet
+              invoke(:tweet, obj)
+            when Twitter::DirectMessage
+              invoke(:message, obj)
+            when Twitter::Streaming::DeletedTweet
+              invoke(:delete, obj.user_id, obj.id)
+            when Twitter::Streaming::Event
+              invoke(:event,
+                     'event' => obj.name, 'source' => obj.source,
+                     'target' => obj.target, 'target_object' => obj.target_object)
+            end
+          end
+        end
+
         self
       end
 
       def stop
-        stream.stop_stream
-        @stream = nil
-        @running = false
+        @thread.tap(&:kill).join
+        @thread = nil
         self
       end
     end
