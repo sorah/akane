@@ -20,6 +20,8 @@ Gem::Specification.new do |spec|
 
   spec.add_dependency "tweetstream", "~> 2.6.0"
   spec.add_dependency "elasticsearch", "~> 0.4.1"
+  spec.add_dependency "twitter", "~> 5.5.1"
+  spec.add_dependency "oauth", ">= 0.4.7"
 
   spec.add_development_dependency "bundler"
   spec.add_development_dependency "rake"
