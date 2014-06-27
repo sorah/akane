@@ -1,0 +1,21 @@
+---
+consumer:
+  token: CONSUMER_TOKEN
+  secret: CONSUMER_SECRET
+accounts:
+  your_account_name1:
+    token: ACCESS_TOKEN1
+    secret: SECRET_TOKEN1
+  your_account_name2:
+    token: ACCESS_TOKEN2
+    secret: SECRET_TOKEN2
+storages:
+  - stdout
+  - file:
+      dir: /tmp/akane
+      sync_io: false
+  - elasticsearch:
+      host: localhost
+      index: akane
+      kuromoji: false
+      enable_es_log: false
