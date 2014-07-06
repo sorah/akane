@@ -65,7 +65,7 @@ module Akane
 
         rescue Timeout::Error => e
           raise e if raise_errors
-          @logger.warn "#{storage} (#{action}) timed out"
+          @logger.warn "#{storage.inspect} (#{action}) timed out"
 
         rescue Interrupt, SignalException, SystemExit => e
           raise e
