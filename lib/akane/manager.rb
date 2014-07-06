@@ -35,7 +35,7 @@ module Akane
           [[definition, {}]]
         end
       end.map do |kind, config|
-        @logger.info "Preparing... storgae - #{kind}"
+        @logger.info "Preparing... storage - #{kind}"
         require "akane/storages/#{kind}"
         Akane::Storages.const_get(kind.gsub(/(?:\A|_)(.)/) { $1.upcase }).new(
           config: config,
