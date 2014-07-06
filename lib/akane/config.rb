@@ -29,5 +29,15 @@ module Akane
     def logger
       Logger.new(@hash["log"] || $stdout)
     end
+
+    def log_direct(line)
+      if @hash["log"]
+        open(@hash["log"], 'a') do |io|
+          io.puts line
+        end
+      else
+        $stdout.puts line
+      end
+    end
   end
 end

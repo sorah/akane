@@ -3,12 +3,15 @@ require 'timeout'
 
 module Akane
   class Recorder
+    class Stop < Exception; end # :nodoc:
+
     def initialize(storages, timeout: 20, logger: Logger.new(nil))
       @storages = storages
       @logger = logger
       @queue = Queue.new
       @recently_performed = RoundrobinFlags.new(1000)
       @timeout = timeout
+      @stop = false
     end
 
     def queue_length
@@ -16,21 +19,25 @@ module Akane
     end
 
     def record_tweet(account, tweet)
+      return self if @stop
       @queue << [:record_tweet, account, tweet]
       self
     end
 
     def mark_as_deleted(account, user_id, tweet_id)
+      return self if @stop
       @queue << [:mark_as_deleted, account, user_id, tweet_id]
       self
     end
 
     def record_message(account, message)
+      return self if @stop
       @queue << [:record_message, account, message]
       self
     end
 
     def record_event(account, event)
+      return self if @stop
       @queue << [:record_event, account, event]
       self
     end
@@ -60,8 +67,10 @@ module Akane
           raise e if raise_errors
           @logger.warn "#{storage} (#{action}) timed out"
 
+        rescue Interrupt, SignalException, SystemExit => e
+          raise e
+
         rescue Exception => e
-          raise e if e === Interrupt
           raise e if raise_errors
           @logger.error "Error while recorder performing to #{storage.inspect}:  #{e.inspect}"
           @logger.error e.backtrace
@@ -70,16 +79,35 @@ module Akane
     end
 
     def run(raise_errors = false)
-      loop do
-        begin
-          self.dequeue(raise_errors)
-        rescue Exception => e
-          raise e if Interrupt === e
-          raise e if raise_errors
-          @logger.error "Error while recorder dequing: #{e.inspect}"
-          @logger.error e.backtrace
+      @running_thread = Thread.new do 
+        loop do
+          begin
+            begin
+              self.dequeue(raise_errors)
+            rescue Interrupt, SignalException, Stop
+            end
+
+            if @stop
+              break if self.queue_length.zero?
+              @logger.info "processing queue: #{self.queue_length} remaining."
+            end
+          rescue Exception => e
+            raise e if raise_errors
+            @logger.error "Error while recorder dequing: #{e.inspect}"
+            @logger.error e.backtrace
+          end
         end
+        @logger.info "Recorder stopped."
+        @stop = false
       end
+
+      @running_thread.join
+      nil
+    end
+
+    def stop!
+      @stop = true
+      @running_thread.raise Stop
     end
 
     class RoundrobinFlags

@@ -82,4 +82,22 @@ describe Akane::Recorder do
       @th.kill if @th && @th.alive?
     end
   end
+
+  describe "#stop!" do
+    it "stops gracefully" do
+      storages[0].should_receive(:record_tweet).with('a', {:id => 42})
+
+      @th = Thread.new { subject.run(true) }
+      @th.abort_on_exception = true
+      15.times { break if @th.status == "sleep"; sleep 0.1 }
+
+      subject.record_tweet('a', :id => 42)
+      subject.stop!
+      subject.record_tweet('b', :id => 42)
+
+      15.times { break unless @th.alive?; sleep 0.1 }
+
+      expect(@th).not_to be_alive
+    end
+  end
 end

@@ -55,8 +55,35 @@ module Akane
     def start
       @logger.info "Starting receivers..."
       @receivers.each(&:start)
+
+      @logger.info "Assigning signal handlers..."
+      handle_signals
+
       @logger.info "Starting recorder..."
       @recorder.run
+    end
+
+    def handle_signals
+      @terminating = false
+
+      begin
+        require 'sigdump/setup'
+      rescue LoadError
+      end
+
+      on_interrupt = proc do
+        if @terminating
+          @config.log_direct "Terminating forcely..."
+          exit
+        else
+          @terminating = true
+          @config.log_direct "Gracefully stopping..."
+          @recorder.stop!
+        end
+      end
+
+      trap(:INT, on_interrupt)
+      trap(:TERM, on_interrupt)
     end
 
     def run
