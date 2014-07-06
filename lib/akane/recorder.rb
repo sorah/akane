@@ -97,6 +97,7 @@ module Akane
             @logger.error e.backtrace
           end
         end
+
         @logger.info "Recorder stopped."
         @stop = false
       end

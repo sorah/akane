@@ -86,6 +86,7 @@ describe Akane::Recorder do
   describe "#stop!" do
     it "stops gracefully" do
       storages[0].should_receive(:record_tweet).with('a', {:id => 42})
+      allow(storages[0]).to receive(:exitable?).and_return(true)
 
       @th = Thread.new { subject.run(true) }
       @th.abort_on_exception = true

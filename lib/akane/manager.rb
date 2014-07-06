@@ -61,6 +61,9 @@ module Akane
 
       @logger.info "Starting recorder..."
       @recorder.run
+
+      @logger.info "Recorder stopped. Waiting for storages..."
+      stop_storages
     end
 
     def handle_signals
@@ -91,6 +94,22 @@ module Akane
       self.prepare()
 
       start()
+    end
+
+    def stop_storages
+      @storages.each(&:stop!)
+      loop do
+        not_exitable = @storages.any? do |storage|
+          if storage.exitable?
+            false
+          else
+            @logger.debug "[status] #{storage.inspect}: #{storage.status || 'not exitable'.freeze}"
+            true
+          end
+        end
+        break unless not_exitable
+        sleep 1
+      end
     end
 
     private

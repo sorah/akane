@@ -4,6 +4,7 @@ module Akane
       def initialize(config: raise(ArgumentError, 'missing config'), logger: Logger.new($stdout))
         @config = config
         @logger = logger
+        @stop = false
       end
 
       def record_tweet(account, tweet)
@@ -20,6 +21,18 @@ module Akane
 
       def record_message(account, message)
         raise NotImplementedError
+      end
+
+      def stop!
+        @stop = true
+      end
+
+      def exitable?
+        true
+      end
+
+      def status
+        nil
       end
     end
   end
