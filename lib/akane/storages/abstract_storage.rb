@@ -7,6 +7,10 @@ module Akane
         @stop = false
       end
 
+      def name
+        self.class.name
+      end
+
       def record_tweet(account, tweet)
         raise NotImplementedError
       end

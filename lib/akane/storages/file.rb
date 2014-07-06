@@ -16,6 +16,10 @@ module Akane
         end
       end
 
+      def name
+        @name ||= "#{self.class.name}:#{@config["dir"]}"
+      end
+
       def record_tweet(account, tweet)
         timeline_io.puts "[#{tweet[:created_at].xmlschema}][#{account}] #{tweet[:user][:screen_name]}: " \
                          "#{tweet[:text].gsub(/\r?\n/,' ')} (#{tweet[:user][:id]},#{tweet[:id]})"

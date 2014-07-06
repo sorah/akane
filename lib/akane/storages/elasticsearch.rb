@@ -15,6 +15,10 @@ module Akane
         set_elasticsearch_up
       end
 
+      def name
+        @name ||= "#{self.class.name}:#{@config["host"]}/#{@index_name}"
+      end
+
       def record_tweet(account, tweet)
         tweet_hash = tweet.attrs
         tweet_hash[:deleted] = false

@@ -103,7 +103,7 @@ module Akane
           if storage.exitable?
             false
           else
-            @logger.debug "[status] #{storage.inspect}: #{storage.status || 'not exitable'.freeze}"
+            @logger.debug "[status] #{storage.name}: #{storage.status || 'not exitable'.freeze}"
             true
           end
         end
