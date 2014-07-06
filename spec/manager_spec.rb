@@ -22,7 +22,8 @@ describe Akane::Manager do
         "token" => "consumer-token", "secret" => "consumer-secret"
       },
       "accounts" => conf_accounts,
-      "storages" => conf_storages
+      "storages" => conf_storages,
+      "timeout" => 72,
     ).tap { |_| _.stub(logger: Logger.new(nil)) }
   end
 
@@ -49,7 +50,7 @@ describe Akane::Manager do
     it "creates recorder with storages" do
       storage = double("storage")
       Akane::Storages::Mock.stub(new: storage)
-      Akane::Recorder.should_receive(:new).with([storage], logger: config.logger).and_call_original
+      Akane::Recorder.should_receive(:new).with([storage], timeout: 72, logger: config.logger).and_call_original
 
       subject.prepare
     end

@@ -1,12 +1,14 @@
 require 'thread'
+require 'timeout'
 
 module Akane
   class Recorder
-    def initialize(storages, logger: Logger.new(nil))
+    def initialize(storages, timeout: 20, logger: Logger.new(nil))
       @storages = storages
       @logger = logger
       @queue = Queue.new
       @recently_performed = RoundrobinFlags.new(1000)
+      @timeout = timeout
     end
 
     def queue_length
@@ -50,7 +52,14 @@ module Akane
 
       @storages.each do |storage|
         begin
-          storage.__send__(action, account, *payload)
+          timeout(@timeout) do
+            storage.__send__(action, account, *payload)
+          end
+
+        rescue Timeout::Error => e
+          raise e if raise_errors
+          @logger.warn "#{storage} (#{action}) timed out"
+
         rescue Exception => e
           raise e if e === Interrupt
           raise e if raise_errors

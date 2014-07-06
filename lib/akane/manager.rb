@@ -43,7 +43,11 @@ module Akane
         )
       end
 
-      @recorder = Akane::Recorder.new(@storages, logger: @config.logger)
+      @recorder = Akane::Recorder.new(
+        @storages,
+        timeout: @config["timeout"] || 20,
+        logger: @config.logger
+      )
 
       @logger.info "Prepared with #{@storages.size} storage(s) and #{@receivers.size} receiver(s)"
     end
