@@ -26,19 +26,26 @@ module Akane
         @logger.info "Stream : Starting"
 
         @thread = Thread.new do
-          stream.user do |obj|
-            case obj
-            when Twitter::Tweet
-              invoke(:tweet, obj)
-            when Twitter::DirectMessage
-              invoke(:message, obj)
-            when Twitter::Streaming::DeletedTweet
-              invoke(:delete, obj.user_id, obj.id)
-            when Twitter::Streaming::Event
-              invoke(:event,
-                     'event' => obj.name, 'source' => obj.source,
-                     'target' => obj.target, 'target_object' => obj.target_object)
+          begin
+            stream.user do |obj|
+              case obj
+              when Twitter::Tweet
+                invoke(:tweet, obj)
+              when Twitter::DirectMessage
+                invoke(:message, obj)
+              when Twitter::Streaming::DeletedTweet
+                invoke(:delete, obj.user_id, obj.id)
+              when Twitter::Streaming::Event
+                invoke(:event,
+                       'event' => obj.name, 'source' => obj.source,
+                       'target' => obj.target, 'target_object' => obj.target_object)
+              end
             end
+          rescue Exception => e
+            raise e if defined?(Twitter::Streaming::MockClient)
+            @logger.error 'Error on stream'
+            @logger.error e.inspect
+            @logger.error e.backtrace
           end
         end
 
