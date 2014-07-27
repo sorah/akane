@@ -11,58 +11,10 @@ module Akane
 
     def prepare
       @logger.info 'Preparing'
-      @receivers = @config["accounts"].flat_map do |name, credential|
-        receiver_definitions = credential["receivers"] || ['stream']
 
-        receiver_definitions.map do |definition|
-          if definition.kind_of?(Hash)
-            if 1 < definition.size
-              @logger.warn "Only 1 receiver definition is used in one Hash instance."
-            end
-
-            kind, config = definition.each.first
-          else
-            kind, config = definition, {}
-          end
-
-          Akane::Receivers.find(kind).new(
-            consumer: {token: @config["consumer"]["token"], secret: @config["consumer"]["secret"]},
-            account: {token: credential["token"], secret: credential["secret"], name: name},
-            config: config,
-            logger: @config.logger
-          ).tap do |receiver|
-            @logger.info "Preparing... receiver - #{receiver.class}"
-            receiver.on_tweet(&(  method(:on_tweet).to_proc.curry[receiver.name]))
-            receiver.on_message(&(method(:on_message).to_proc.curry[receiver.name]))
-            receiver.on_event(&(  method(:on_event).to_proc.curry[receiver.name]))
-            receiver.on_delete(&( method(:on_delete).to_proc.curry[receiver.name]))
-          end
-        end
-      end
-
-      @storages = @config["storages"].flat_map do |definition|
-        case definition
-        when Hash
-          definition.map do |kind, config|
-            [kind, config]
-          end
-        when String
-          [[definition, {}]]
-        end
-      end.map do |kind, config|
-        @logger.info "Preparing... storage - #{kind}"
-        require "akane/storages/#{kind}"
-        Akane::Storages.const_get(kind.gsub(/(?:\A|_)(.)/) { $1.upcase }).new(
-          config: config,
-          logger: @config.logger
-        )
-      end
-
-      @recorder = Akane::Recorder.new(
-        @storages,
-        timeout: @config["timeout"] || 20,
-        logger: @config.logger
-      )
+      prepare_receivers
+      prepare_storages
+      prepare_recorder
 
       @logger.info "Prepared with #{@storages.size} storage(s) and #{@receivers.size} receiver(s)"
     end
@@ -143,6 +95,65 @@ module Akane
 
     def on_delete(account, user_id, tweet_id)
       @recorder.mark_as_deleted(account, user_id, tweet_id)
+    end
+
+    def prepare_receivers
+      @receivers = @config["accounts"].flat_map do |name, credential|
+        receiver_definitions = credential["receivers"] || ['stream']
+
+        receiver_definitions.map do |definition|
+          if definition.kind_of?(Hash)
+            if 1 < definition.size
+              @logger.warn "Only 1 receiver definition is used in one Hash instance."
+            end
+
+            kind, config = definition.each.first
+          else
+            kind, config = definition, {}
+          end
+
+          Akane::Receivers.find(kind).new(
+            consumer: {token: @config["consumer"]["token"], secret: @config["consumer"]["secret"]},
+            account: {token: credential["token"], secret: credential["secret"], name: name},
+            config: config,
+            logger: @config.logger
+          ).tap do |receiver|
+            @logger.info "Preparing... receiver - #{receiver.class}"
+            receiver.on_tweet(&(  method(:on_tweet).to_proc.curry[receiver.name]))
+            receiver.on_message(&(method(:on_message).to_proc.curry[receiver.name]))
+            receiver.on_event(&(  method(:on_event).to_proc.curry[receiver.name]))
+            receiver.on_delete(&( method(:on_delete).to_proc.curry[receiver.name]))
+          end
+        end
+      end
+    end
+
+    def prepare_storages
+      @storages = @config["storages"].flat_map do |definition|
+        case definition
+        when Hash
+          definition.map do |kind, config|
+            [kind, config]
+          end
+        when String
+          [[definition, {}]]
+        end
+      end.map do |kind, config|
+        @logger.info "Preparing... storage - #{kind}"
+        require "akane/storages/#{kind}"
+        Akane::Storages.const_get(kind.gsub(/(?:\A|_)(.)/) { $1.upcase }).new(
+          config: config,
+          logger: @config.logger
+        )
+      end
+    end
+
+    def prepare_recorder
+      @recorder = Akane::Recorder.new(
+        @storages,
+        timeout: @config["timeout"] || 20,
+        logger: @config.logger
+      )
     end
   end
 end
