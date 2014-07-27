@@ -1,6 +1,7 @@
 require 'spec_helper'
 require 'akane/manager'
 require 'akane/receivers/stream'
+require 'akane/receivers/abstract_receiver'
 require 'akane/storages/mock'
 require 'akane/config'
 
@@ -36,6 +37,7 @@ describe Akane::Manager do
       Akane::Receivers::Stream.should_receive(:new) \
         .with(consumer: {token: 'consumer-token', secret: 'consumer-secret'},
               account:  {token: 'a-access-token', secret: 'a-access-secret', name: 'a'},
+              config: {},
               logger: config.logger) \
         .and_return(double("a").as_null_object)
 
@@ -53,6 +55,58 @@ describe Akane::Manager do
       Akane::Recorder.should_receive(:new).with([storage], timeout: 72, logger: config.logger).and_call_original
 
       subject.prepare
+    end
+
+    context "with config.accounts[].receivers" do
+      let(:conf_accounts) do
+        {
+          "a" => {
+            "token" => "a-access-token",
+            "secret" => "a-access-secret",
+            "receivers" => [
+              'foo',
+              {"bar" => {'hello' => 'hola',}},
+            ],
+          },
+          "b" => {
+            "token" => "b-access-token",
+            "secret" => "b-access-secret",
+          },
+        }
+      end
+
+      let(:foo_receiver) { Class.new(Akane::Receivers::AbstractReceiver) {} }
+      let(:bar_receiver) { Class.new(Akane::Receivers::AbstractReceiver) {} }
+
+      before do
+        stub_const 'Akane::Receivers::Foo', foo_receiver
+        stub_const 'Akane::Receivers::Bar', bar_receiver
+      end
+
+      it "creates receivers" do
+        expect(foo_receiver).to receive(:new) \
+          .with(consumer: {token: 'consumer-token', secret: 'consumer-secret'},
+                account:  {token: 'a-access-token', secret: 'a-access-secret', name: 'a'},
+                config: {},
+                logger: config.logger) \
+          .and_return(double("foo").as_null_object)
+
+        expect(bar_receiver).to receive(:new) \
+          .with(consumer: {token: 'consumer-token', secret: 'consumer-secret'},
+                account:  {token: 'a-access-token', secret: 'a-access-secret', name: 'a'},
+                config: {'hello' => 'hola',},
+                logger: config.logger) \
+          .and_return(double("bar").as_null_object)
+
+        Akane::Receivers::Stream.should_receive(:new) \
+          .with(consumer: {token: 'consumer-token', secret: 'consumer-secret'},
+                account:  {token: 'b-access-token', secret: 'b-access-secret', name: 'b'},
+                config: {},
+                logger: config.logger) \
+          .and_return(double("bstream").as_null_object)
+
+        subject.prepare
+      end
     end
   end
 

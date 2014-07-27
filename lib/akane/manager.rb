@@ -11,17 +11,44 @@ module Akane
 
     def prepare
       @logger.info 'Preparing'
-      @receivers = @config["accounts"].map do |name, credential|
-        Akane::Receivers::Stream.new(
-          consumer: {token: @config["consumer"]["token"], secret: @config["consumer"]["secret"]},
-          account: {token: credential["token"], secret: credential["secret"], name: name},
-          logger: @config.logger
-        ).tap do |receiver|
-          @logger.info "Preparing... receiver - #{receiver.class}"
-          receiver.on_tweet(&(  method(:on_tweet).to_proc.curry[receiver.name]))
-          receiver.on_message(&(method(:on_message).to_proc.curry[receiver.name]))
-          receiver.on_event(&(  method(:on_event).to_proc.curry[receiver.name]))
-          receiver.on_delete(&( method(:on_delete).to_proc.curry[receiver.name]))
+      @receivers = @config["accounts"].flat_map do |name, credential|
+        receiver_definitions = credential["receivers"] || ['stream']
+
+        receiver_definitions.map do |definition|
+          if definition.kind_of?(Hash)
+            if 1 < definition.size
+              @logger.warn "Only 1 receiver definition is used in one Hash instance."
+            end
+
+            kind, config = definition.each.first
+          else
+            kind, config = definition, {}
+          end
+
+          class_name = kind.gsub(/(?:\A|_)(.)/) { $1.upcase }
+
+          retried = false
+          begin
+            receiver_class = Akane::Receivers.const_get(class_name)
+          rescue NameError => e
+            raise e if retried
+            retried = true
+            require "akane/receivers/#{kind}"
+            retry
+          end
+
+          receiver_class.new(
+            consumer: {token: @config["consumer"]["token"], secret: @config["consumer"]["secret"]},
+            account: {token: credential["token"], secret: credential["secret"], name: name},
+            config: config,
+            logger: @config.logger
+          ).tap do |receiver|
+            @logger.info "Preparing... receiver - #{receiver.class}"
+            receiver.on_tweet(&(  method(:on_tweet).to_proc.curry[receiver.name]))
+            receiver.on_message(&(method(:on_message).to_proc.curry[receiver.name]))
+            receiver.on_event(&(  method(:on_event).to_proc.curry[receiver.name]))
+            receiver.on_delete(&( method(:on_delete).to_proc.curry[receiver.name]))
+          end
         end
       end
 
