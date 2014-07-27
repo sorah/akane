@@ -1,6 +1,7 @@
 require 'akane/config'
 require 'akane/recorder'
 require 'akane/receivers'
+require 'akane/storages'
 
 module Akane
   class Manager
@@ -140,8 +141,7 @@ module Akane
         end
       end.map do |kind, config|
         @logger.info "Preparing... storage - #{kind}"
-        require "akane/storages/#{kind}"
-        Akane::Storages.const_get(kind.gsub(/(?:\A|_)(.)/) { $1.upcase }).new(
+        Akane::Storages.find(kind).new(
           config: config,
           logger: @config.logger
         )
