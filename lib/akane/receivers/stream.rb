@@ -26,7 +26,7 @@ module Akane
       def name
         # For backward compatibility, user stream returns only account name if
         # config.name not specified.
-        @config[:name] || @account[:name]
+        @name ||= @config['name'] || @account[:name]
       end
 
       def running?() !!(@thread && @thread.alive?) end
