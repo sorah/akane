@@ -15,7 +15,7 @@ module Akane
       end
 
       def name
-        @config[:name] || "#{cname}:#{@account[:name]}"
+        @name ||= @config['name'] || "#{cname}:#{@account[:name]}"
       end
 
       def start

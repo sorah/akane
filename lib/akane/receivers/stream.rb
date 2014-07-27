@@ -7,12 +7,26 @@ module Akane
       def initialize(*)
         super
         @thread = nil
+
+        if @config["method"]
+          @stream_method = @config["method"].to_sym
+        else
+          @stream_method = :user
+        end
+
+        if @config["options"]
+          @stream_options = Hash[@config["options"].map do |k,v|
+            [k.to_sym, v]
+          end]
+        else
+          @stream_options = {}
+        end
       end
 
       def name
         # For backward compatibility, user stream returns only account name if
         # config.name not specified.
-        @config[:name] || @account[:name]
+        @name ||= @config['name'] || @account[:name]
       end
 
       def running?() !!(@thread && @thread.alive?) end
@@ -33,7 +47,7 @@ module Akane
 
         @thread = Thread.new do
           begin
-            stream.user do |obj|
+            stream.send(@stream_method, @stream_options) do |obj|
               case obj
               when Twitter::Tweet
                 invoke(:tweet, obj)
