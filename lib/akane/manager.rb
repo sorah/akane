@@ -1,6 +1,6 @@
 require 'akane/config'
 require 'akane/recorder'
-require 'akane/receivers/stream'
+require 'akane/receivers'
 
 module Akane
   class Manager
@@ -25,19 +25,7 @@ module Akane
             kind, config = definition, {}
           end
 
-          class_name = kind.gsub(/(?:\A|_)(.)/) { $1.upcase }
-
-          retried = false
-          begin
-            receiver_class = Akane::Receivers.const_get(class_name)
-          rescue NameError => e
-            raise e if retried
-            retried = true
-            require "akane/receivers/#{kind}"
-            retry
-          end
-
-          receiver_class.new(
+          Akane::Receivers.find(kind).new(
             consumer: {token: @config["consumer"]["token"], secret: @config["consumer"]["secret"]},
             account: {token: credential["token"], secret: credential["secret"], name: name},
             config: config,
