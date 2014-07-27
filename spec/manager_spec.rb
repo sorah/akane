@@ -35,7 +35,7 @@ describe Akane::Manager do
     it "creates receivers" do
       Akane::Receivers::Stream.should_receive(:new) \
         .with(consumer: {token: 'consumer-token', secret: 'consumer-secret'},
-              account:  {token: 'a-access-token', secret: 'a-access-secret'},
+              account:  {token: 'a-access-token', secret: 'a-access-secret', name: 'a'},
               logger: config.logger) \
         .and_return(double("a").as_null_object)
 
@@ -64,6 +64,7 @@ describe Akane::Manager do
       Akane::Recorder.stub(new: recorder)
 
       @on_event, @on_tweet, @on_delete, @on_message = nil
+      receiver.stub(name: 'a')
       receiver.stub(:on_event)   { |&block| @on_event   = block }
       receiver.stub(:on_tweet)   { |&block| @on_tweet   = block }
       receiver.stub(:on_delete)  { |&block| @on_delete  = block }

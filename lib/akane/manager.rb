@@ -14,14 +14,14 @@ module Akane
       @receivers = @config["accounts"].map do |name, credential|
         Akane::Receivers::Stream.new(
           consumer: {token: @config["consumer"]["token"], secret: @config["consumer"]["secret"]},
-          account: {token: credential["token"], secret: credential["secret"]},
+          account: {token: credential["token"], secret: credential["secret"], name: name},
           logger: @config.logger
         ).tap do |receiver|
           @logger.info "Preparing... receiver - #{receiver.class}"
-          receiver.on_tweet(  &(method(:on_tweet).to_proc.curry[name]))
-          receiver.on_message(&(method(:on_message).to_proc.curry[name]))
-          receiver.on_event(  &(method(:on_event).to_proc.curry[name]))
-          receiver.on_delete( &(method(:on_delete).to_proc.curry[name]))
+          receiver.on_tweet(&(  method(:on_tweet).to_proc.curry[receiver.name]))
+          receiver.on_message(&(method(:on_message).to_proc.curry[receiver.name]))
+          receiver.on_event(&(  method(:on_event).to_proc.curry[receiver.name]))
+          receiver.on_delete(&( method(:on_delete).to_proc.curry[receiver.name]))
         end
       end
 

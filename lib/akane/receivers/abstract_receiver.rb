@@ -4,6 +4,7 @@ module Akane
       def initialize(consumer: raise(ArgumentError, 'missing consumer'),
                      account:  raise(ArgumentError, 'missing account'),
                      logger: Logger.new($stdout),
+                     name: nil,
                      config: {})
         @consumer = consumer
         @account = account
@@ -11,6 +12,10 @@ module Akane
         @config = config
 
         @hooks = {}
+      end
+
+      def name
+        @config[:name] || "#{cname}:#{@account[:name]}"
       end
 
       def start
@@ -36,6 +41,10 @@ module Akane
       def on_event(&block) on(:event, &block) end
 
       private
+
+      def cname
+        @cname = self.class.name.split(/::/).last
+      end
 
       def invoke(kind, *args)
         return unless @hooks[kind]
