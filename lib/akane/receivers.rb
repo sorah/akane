@@ -5,7 +5,7 @@ module Akane
 
       retried = false
       begin
-        return Akane::Receivers.const_get(class_name)
+        return Akane::Receivers.const_get(class_name, false)
       rescue NameError => e
         raise e if retried
         retried = true

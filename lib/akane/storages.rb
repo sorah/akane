@@ -5,7 +5,7 @@ module Akane
 
       retried = false
       begin
-        return Akane::Storages.const_get(class_name)
+        return Akane::Storages.const_get(class_name, false)
       rescue NameError => e
         raise e if retried
         retried = true
