@@ -2,13 +2,24 @@
 consumer:
   token: CONSUMER_TOKEN
   secret: CONSUMER_SECRET
+
+# You can issue access tokens for accounts by using `akane auth` command.
 accounts:
   your_account_name1:
     token: ACCESS_TOKEN1
     secret: SECRET_TOKEN1
+# You can specify custom receivers for each account.
+# by default, `receivers: ["stream"]` will be used.
+#    receivers:
+#      - stream
+#      - stream:
+#          method: filter
+#          options:
+#            track: foo,bar,baz
   your_account_name2:
     token: ACCESS_TOKEN2
     secret: SECRET_TOKEN2
+
 storages:
   - stdout
   - file:

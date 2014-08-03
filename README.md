@@ -10,9 +10,15 @@ Log your timeline
 
     $ gem install akane
 
-## Usage
+## Set up
 
-TBD
+See `akane.example.yml`
+
+## Start
+
+```
+$ akane start -c /path/to/akane.yml
+```
 
 ## Todo
 
