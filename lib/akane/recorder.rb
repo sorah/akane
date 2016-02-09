@@ -59,7 +59,7 @@ module Akane
 
       @storages.each do |storage|
         begin
-          timeout(@timeout) do
+          Timeout.timeout(@timeout) do
             storage.__send__(action, account, *payload)
           end
 
