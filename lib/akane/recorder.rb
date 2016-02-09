@@ -79,7 +79,7 @@ module Akane
     end
 
     def run(raise_errors = false)
-      @running_thread = Thread.new do 
+      @running_thread = Thread.new do
         loop do
           begin
             begin
