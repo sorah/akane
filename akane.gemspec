@@ -18,8 +18,8 @@ Gem::Specification.new do |spec|
   spec.test_files    = spec.files.grep(%r{^(test|spec|features)/})
   spec.require_paths = ["lib"]
 
-  spec.add_dependency "elasticsearch", "~> 0.4.1"
-  spec.add_dependency "twitter", "~> 5.5.1"
+  spec.add_dependency "elasticsearch", ">= 0.4.1"
+  spec.add_dependency "twitter", ">= 5.9.0"
   spec.add_dependency "oauth", ">= 0.4.7"
   spec.add_dependency "sigdump"
 

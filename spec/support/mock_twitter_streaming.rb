@@ -56,6 +56,10 @@ class Twitter::Streaming::MockClient
     @mutex = Mutex.new
   end
 
+  def ssl_socket_class=(x)
+    return x
+  end
+
   attr_accessor :options, :hooks
 
   def invoke(*args)
