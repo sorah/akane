@@ -85,7 +85,7 @@ module Akane
             when Twitter::Error::EnhanceYourCalm # 420
               interval = 5 ** @retry_count
             when Twitter::Error
-              interval = [320, 5 ** @retry_count].min
+              interval = [320, 5 * (2 ** (@retry_count - 1))].min
             else
               interval = [16, 0.25 * @retry_count].min
             end
