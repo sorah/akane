@@ -83,7 +83,7 @@ module Akane
             # reconnecting https://dev.twitter.com/streaming/overview/connecting
             case e
             when Twitter::Error::EnhanceYourCalm # 420
-              interval = 5 ** @retry_count
+              interval = 60 * (2 ** (@retry_count - 1))
             when Twitter::Error
               interval = [320, 5 * (2 ** (@retry_count - 1))].min
             else
