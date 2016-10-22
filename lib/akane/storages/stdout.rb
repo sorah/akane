@@ -4,7 +4,7 @@ module Akane
   module Storages
     class Stdout < AbstractStorage
       def record_tweet(account, tweet)
-        $stdout.puts "[#{account}] #{tweet["user"]["screen_name"]}: #{tweet["text"]}"
+        $stdout.puts "[#{account}] #{tweet.user.screen_name}: #{tweet.text}"
       end
 
       def mark_as_deleted(account, user_id, tweet_id)
@@ -12,11 +12,11 @@ module Akane
       end
 
       def record_event(account, event)
-        $stdout.puts "[#{account}](EVENT) #{event["event"]}: #{event["source"]["screen_name"]}-> #{event["target"]["screen_name"]}"
+        $stdout.puts "[#{account}](EVENT) #{event.event}: #{event.source.screen_name}-> #{event.target.screen_name}"
       end
 
       def record_message(account, message)
-        $stdout.puts "[#{account}](DM) #{message["user"]["screen_name"]}: #{message["text"]}"
+        $stdout.puts "[#{account}](DM) #{message.user.screen_name}: #{message.text}"
       end
     end
   end

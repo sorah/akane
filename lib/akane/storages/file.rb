@@ -21,10 +21,10 @@ module Akane
       end
 
       def record_tweet(account, tweet)
-        timeline_io.puts "[#{tweet[:created_at].xmlschema}][#{account}] #{tweet[:user][:screen_name]}: " \
-                         "#{tweet[:text].gsub(/\r?\n/,' ')} (#{tweet[:user][:id]},#{tweet[:id]})"
+        timeline_io.puts "[#{tweet.created_at.xmlschema}][#{account}] #{tweet.user.screen_name}: " \
+                         "#{tweet.text.gsub(/\r?\n/,' ')} (#{tweet.user.id},#{tweet.id})"
 
-        tweets_io_for_user(tweet[:user][:id], tweet[:user][:screen_name]) do |io|
+        tweets_io_for_user(tweet.user.id, tweet.user.screen_name) do |io|
           io.puts tweet.attrs.to_json
         end
       end
@@ -41,12 +41,12 @@ module Akane
       end
 
       def record_message(account, message)
-        messages_raw_io_for_user(message[:sender][:id], message[:sender][:screen_name]) do |io|
+        messages_raw_io_for_user(message.sender.id, message.sender.screen_name) do |io|
           io.puts message.attrs.to_json
         end
-        messages_io_for_user(message[:sender][:id], message[:sender][:screen_name]) do |io|
-          io.puts "[#{message[:created_at].xmlschema}] #{message[:sender][:screen_name]} -> #{message[:recipient][:screen_name]}:" \
-                           " #{message[:text]} (#{message[:sender][:id]} -> #{message[:recipient][:id]},#{message[:id]})"
+        messages_io_for_user(message.sender.id, message.sender.screen_name) do |io|
+          io.puts "[#{message.created_at.xmlschema}] #{message.sender.screen_name} -> #{message.recipient.screen_name}:" \
+                  " #{message.text} (#{message.sender.id} -> #{message.recipient.id},#{message.id})"
         end
       end
 
